@@ -1,8 +1,9 @@
-#include<iostream>
+#include <iostream>
+#include <stdlib.h>
 using namespace std;
 int main(){
-	string funtimes = 10;
+	string funtimes = "a3";
 	cout<<"giterdone";
-	int get(funtimes);
-	cout<<funtimes;
+	int a = atoi(funtimes.substr(1,1).c_str());
+	cout<<a*3;
 }
