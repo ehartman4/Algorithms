@@ -1,3 +1,24 @@
+/*
+File name:		hartman_driver.cpp
+Date:			September 23, 2012
+Name:			Emma Hartman
+Description:	Adds and displays binary, octal, and hexadecimal numbers of up to 20 digits
+				(homogeneously) and converts them to decimals.
+Input:			Two hexadecimal numbers, then two octal numbers, then two binary number. Hex
+				numbers use the digits 0-F. For the letters, representing decimal numbers 11-15,
+				upper or lower case will be accepted.  Input numbers can be from 1 to 20 digits
+				each. (To use 0 you must type 0, you cannot simply leave the field blank.)
+Output: 		Depends on your driver function. Mine outputs:
+					- The first hex number entered and its decimal equivalent
+					- The second hex number entered and its decimal equivalent
+					- The sum of the two numbers entered so far and its decimal equivalent
+					- The first octal number and its decimal equivalent
+					- The sum of the first and second octal numbers
+					- The sum of the first and second binary numbers
+					- The decimal equivalent of the first binary number + the second binary,
+					  which has now replaced the value of the first binary number
+*/
+
 #include <iostream>
 #include <vector>
 #include <stdlib.h>
