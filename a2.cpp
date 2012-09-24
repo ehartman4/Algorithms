@@ -32,8 +32,8 @@ protected:
 	vector<int> bitnum;
 	vector<int> chop();
 public:
-	number () {vector<int> thebitnum (20,0);};//empty constructor for binary
-	number (int thebase, vector<int> thebitnum) {base = thebase; bitnum = thebitnum;};
+	number () {vector<int> thebitnum (20,0);}; //empty constructor for any number, sets the size/value of bitnum to 20 0's, since the initial setting of the number is supposed to be 0.
+	number (int thebase, vector<int> thebitnum) {base = thebase; bitnum = thebitnum;}; //copy constructor - takes in a base (2,8,or 16) and a bitnum int vector.
 	int decimal();
 	vector<int> get_bitnum();
 	friend istream& operator>> (istream&, number&);
@@ -41,17 +41,26 @@ public:
 	number operator+ (number);	
 };
 
+//pre-condition:  the instance has a strnum value of between 1 and 20 characters in length. 
+//post-condition: a vector of ints "innum" has been created, storing the values of strnum
+//                as individual ints for each "column" of the input strnum number.
 vector<int> number::chop()
 {
 	vector<int> innum (20,0);
-	// bitsets are stored in revers order, so this takes the last digit in the input string,
-	//   which is index [0] in the bitset, and sets it as sch, and so on.
+	// I stored my numbers in reverse order, so the first number in the vector's is the
+	//   base^0 column, the second is the base^1 column, etc. I acheived this by inserting
+	//   the digits, starting with the first sequentially entered by the user, into the
+	//   first slot of the vector every time. Each time an int was inserted into the front
+	//   of the vector, I erased a 0 off the end of the vector so that the vecto would
+	//   remain 20 ints in length.
 	vector<int>::iterator it;
 	it = innum.begin();
 	for (int i = 0; i < strnum.length(); ++i)
 	{
 		innum.pop_back();
 		if (base==16){
+			//In the case of hexadecimal numbers, we want to do arithmetic on the digits
+			//   in terms of decimal digits, so I converted the digits A-F to decimal 10-15.
 			if (strnum[i] == 'A' or strnum[i] == 'a'){
 				innum.insert(it,10);}
 			else if (strnum[i] == 'B' or strnum[i] == 'b'){
@@ -72,45 +81,65 @@ vector<int> number::chop()
 	return innum;
 }
 
+
+//pre-condition:  The instance has a vector of ints bitnum that is 20 ints long. 
+//post-condition: An int that represents the decimal equivalent of the input number
+//                in the assigned base.
 int number::decimal(){
 	int dec = 0;
 	int column = 1;
-	//loop through the bitset, multiplying each number by the corresponding
-	//  power of 2 and adding it to the decimal number "dec"
+	//loop through the vector, multiplying each number by the corresponding power of the
+	//   base of the number and adding it to the decimal number "dec".
 	for (int bin = 0; bin < 20; ++bin){
 		dec += column*bitnum[bin];
 		column *= base;
 	}
 	return dec;
 }
-
+// This is a public method of number created to access the private data value of bitnum,
+//    which is necessary for certain aspects of the inheritance in this program.
 vector<int> number::get_bitnum(){
 	return bitnum;
 }
 
+//pre-condition:	A string, no more than 20 characters in length, of legal input. For
+//					binary, this means each character must be '0' or '1'. For octal, this
+//					means each character must be '0','1','2','3','4','5','6', or '7'. For
+//					hexadecimal, this means each character must be '0','1','2','3','4','5',
+//					'6','7','8','9','A','B','C','D','E','F','a','b','c','d','e', or 'f'.
+//					(Hex numbers will be accepted in either lower or upper case.)
+//post-condition:	The instream is returned.
 istream& operator>> (istream& ci, number& b)
 {
 	ci >> b.strnum;
+	// The instream is fed into a string, "strnum", which then is used in the chop()
+	//    function create a bitnum vector of ints to represent that string appropriately.
 	b.bitnum = b.chop();
 	return ci;
 }
 
+//pre-condition:	A number object b that has a valid bitnum string and base value.
+//post-condition:	Printed out a correct visual representation of the number that is stored
+//					in the bitnum corresponding to this number object.
 ostream& operator<< (ostream& co, number b)
 {
 	bool it = 0;
 	int pos = 19;
-	//li<int>::iterator pos;
-	//pos = b.bitnum.end();
-	// decides whwere to start actually printing out the bitset-style number.
-	// For example, 101 is stored as 17 0's and then 101, so it would print out as such. This
-	//   finds the first '1' in the number (the largest power of 2 for which there is a '1'),
-	//   and starts displaying with this value.
+	// Decides where to start actually printing out the int vector number. For example, for
+	//   an octal number, 783 is stored as 3,8,7, and then 17 0's, so it would print out as
+	//   such. This finds the first non-zero in the number going backwards from the end of
+	//   the vector, which wuld be the largest "column" in the number, and starts displaying
+	//   with this largest non-zero value.
 	while (it==0 and pos>0){
 		if (b.bitnum[pos]==0){
 			pos -=1;
 		}
 		else{it=1;}
 	}
+	// For the case of hexadecimal, just like in the "chop" function, we need to account
+	//    for how the digits A-F are displayed vs. how they're stored. This series of if
+	//    statements makes it so that the correct letter is displayed for the corresponding
+	//    digit value in decimal.
 	for (int i = pos; i >=0; --i)
 	{
 		if (b.base==16){
