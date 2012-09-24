@@ -1,38 +1,59 @@
 /*
 File name:		hartman_driver.cpp
-Date:			September 13, 2012
+Date:			September 23, 2012
 Name:			Emma Hartman
-Description:	Adds and displays binary numbers and converts them to decimals.
-Input:			Two binary numbers, so any two strings of 0's and 1's, from 1 to 20
-				digits each. (To use 0 you must type 0, you cannot simply leave the
-				field blank)
+Description:	Adds and displays binary, octal, and hexadecimal numbers of up to 20 digits
+				(homogeneously) and converts them to decimals.
+Input:			Two hexadecimal numbers, then two octal numbers, then two binary number. Hex
+				numbers use the digits 0-F. For the letters, representing decimal numbers 11-15,
+				upper or lower case will be accepted.  Input numbers can be from 1 to 20 digits
+				each. (To use 0 you must type 0, you cannot simply leave the field blank.)
 Output: 		Depends on your driver function. Mine outputs:
-					- The decimal equivalent of the first number entered
-					- The sum of the two numbers entered
-					- The sum of those two numbers and the second number again
-					- The sum of the two numbers entered again, which is the new
-					  value of the first number
-					- The decimal equivalent of the second number entered
-					- The decimal equivalent of the first number + the second number twice
-}
+					- The first hex number entered and its decimal equivalent
+					- The second hex number entered and its decimal equivalent
+					- The sum of the two numbers entered so far and its decimal equivalent
+					- The first octal number and its decimal equivalent
+					- The sum of the first and second octal numbers
+					- The sum of the first and second binary numbers
+					- The decimal equivalent of the first binary number + the second binary,
+					  which has now replaced the value of the first binary number
 */
+#include "hartman_number2.h"
 
-#include "hartman_number.h"
 int main(){
-	cout<<"Enter two binary numbers: ";
-	binary one,two;
-	cin>>one; //demonstrating instream overloading
-	cin>>two;
-
-	cout<<"The decimal equivalent of the first number, "<<one<<", is: "<<one.decimal()<<endl;// demonstrating decimal method
-	binary three = one+two; //demonstrating = overloading and + overloading
 	
-	cout<<"The sum of the two numbers is: "<<three<<endl; //demonstrating out stream overloading of binary class instance
-
-	three +=two; //demonstrating += overloading
-	cout<<"Add "<<two<<" to this number and you get: "<<three<<endl;
-	one = one + two; //more demonstration of = and + overloaders for binary class
-	cout<<"New first number: "<<one<<endl;
-	cout<<two<<" base 2 equals "<<two.decimal()<<" base 10"<<endl; //more demonstration of decimal method
-	cout<<three<<" base 2 equals "<<three.decimal()<<" base 10"<<endl;
+	
+	binary bnum, bnum2, bnum3;
+	hexadecimal hnum,hnum2,hnum3;
+	octal onum1, onum2;
+	//showing hex instream overloading
+	cout << "Enter a hexadecimal number: ";
+	cin >> hnum;
+	cout << "Enter another hex number: ";
+	cin >> hnum2;
+	//demonstrating hex conversion to binary and printing hex
+	cout << "The first number, "<<hnum<<", converted to decimal is: "<<hnum.decimal()<<endl;
+	cout << "The second number, "<<hnum2<<", converted to decimal is: "<<hnum2.decimal()<<endl;
+	//demonstrating hex addition and = overloading
+	hnum3 = hnum+hnum2;
+	cout<< "In hex, their sum is: "<<hnum3<<". In decimal, that's: "<<hnum3.decimal()<<endl;
+	//showing octal instream, outstream, and + overloading, and deciaml conversion.
+	cout << "Enter an octal number: ";
+	cin >> onum1;
+	cout << "Octal number is: " << onum1 << endl;
+	cout << "Its decimal value is: " << onum1.decimal () << endl;
+	cout << "Enter another octal: ";
+	cin >> onum2;
+	cout << "The sum of these two octal numbers in octal is: " << onum1+onum2 << endl;
+	//demonstrating instream, outstream, +, and = overloading of binary, as well as decimal
+	//   conversion.
+	cout << "Enter a binary number: ";
+	cin >> bnum;
+	cout << "...and another: ";
+	cin >> bnum2;
+	bnum3 = bnum+bnum2;
+	cout << "Their sum is: " << bnum3 << endl;
+	bnum = bnum3;
+	cout << "The decimal value of bnum is now: "<< bnum.decimal() << endl;
+	return 0;
 }
