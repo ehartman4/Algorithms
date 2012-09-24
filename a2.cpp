@@ -163,6 +163,17 @@ ostream& operator<< (ostream& co, number b)
 	return co;
 }
 
+//pre-condition:	The input "right" must be a valid instance of the number class - this
+//					means an instance of the number class OR ANY of its child classes. So
+//					input could be a binary, octal, or hexadecimal number as well. It must
+//					match the object tyoe of the number it is being added to though, so the
+//					valid options are: number + number, binary + binary, octal + octal, or
+//					hexadecimal  + hexadecimal.
+//post-condition:	A number object is returned, which has the same base as the two input
+//					numbers and the bitnum vector of this new number represents the sum of
+//					the two input numbers in their own base. Note, however, that this
+//					output's data type will ALWAYS be number - it will not return a binary,
+//					octal, or hexadecimal instance.
 number number::operator+ (number right)
 {
 	int digit1=0,digit2=0,danswer=0,carry=0;
@@ -170,37 +181,54 @@ number number::operator+ (number right)
 	for (int i = 0; i < 20; ++i){
 		digit1 = bitnum[i];
 		digit2 = right.bitnum[i];
-		//determines the number for this "column" of the binary number beofre carrying happens.
+		//determines the number for this "column" of the summed number before carrying for
+		//   the next column happens.
 		danswer = digit1+digit2+carry;
+
 		// now carrying is decided - the "carry" int is not reset at the end of this iteration
 		//   of the loop, becase it factors into the next digit in the number.
-
 		carry = danswer/base;
 		danswer = danswer%base;
 		
 		// sets the sum digit in the correct column to whatever it should be.
 		answer[i] = danswer;
-		//rests the values used for the adding, but NOT the carry (this is needed for the next column)
+		//resets the values used for the adding, but NOT the carry (this is needed for
+		//   calculating the next column's digit)
 		digit1 = 0,digit2 = 0,danswer = 0;
 	}
+	//sets the base of the output number to the same base as those of the input numbers and
+	//   the bitnum of the output number to the bitnum created here - the representation of
+	//   the sum of the numbers.
 	number sum(base,answer);
-	sum.bitnum = answer;
 	return sum;
 }
 
+//Binary inherits from number using "public", so the data types remain public and protected
+//   in number, just as they are in number itself.
 class binary : public number {
 public:
-	binary(){base = 2;};
-	binary(vector<int> thebitnum) {base = 2; bitnum = thebitnum;};
+	binary(){base = 2;}; //This constructor automatically calls the number constructor and
+	//						also sets the base to 2.
+	binary(vector<int> thebitnum) {base = 2; bitnum = thebitnum;}; //This copy constructor
+	//	allows creation of a binary number from the necessary information - the int vector
+	//	representing the number.
 	binary operator+(binary);
 };
 
+
+//pre-condition:	Input a valid binary number as the right operand.
+//post-condition:	Returns the sum of the two numbers in the form of a new binary number
+//					called "sum", containing the bitnum of the sum of the two numbers input.
 binary binary::operator+ (binary right){
 	number numsum = number::operator+(right);
+	// Since number:operator+ already exists and we don't want to repeat that code, we can
+	//    call it again. It will output a number object, however, so we then need to use the
+	//    bitnum of that number object in creating an instance of binary which is equivalent.
 	binary sum (numsum.get_bitnum());
 	return sum;
 }
 
+//The structure for the octal and hexadecimal classes are identical to that of binary.
 class octal : public number {
 public:
 	octal(){base = 8;};
@@ -235,14 +263,18 @@ int main(){
 	binary bnum, bnum2, bnum3;
 	hexadecimal hnum,hnum2,hnum3;
 	octal onum1, onum2;
+	//showing hex instream overloading
 	cout << "Enter a hexadecimal number: ";
 	cin >> hnum;
 	cout << "Enter another hex number: ";
 	cin >> hnum2;
+	//demonstrating hex conversion to binary and printing hex
 	cout << "The first number, "<<hnum<<", converted to decimal is: "<<hnum.decimal()<<endl;
 	cout << "The second number, "<<hnum2<<", converted to decimal is: "<<hnum2.decimal()<<endl;
+	//demonstrating hex addition and = overloading
 	hnum3 = hnum+hnum2;
 	cout<< "In hex, their sum is: "<<hnum3<<". In decimal, that's: "<<hnum3.decimal()<<endl;
+	//showing octal instream, outstream, and + overloading, and deciaml conversion.
 	cout << "Enter an octal number: ";
 	cin >> onum1;
 	cout << "Octal number is: " << onum1 << endl;
@@ -250,6 +282,8 @@ int main(){
 	cout << "Enter another octal: ";
 	cin >> onum2;
 	cout << "The sum of these two octal numbers is: " << onum1+onum2 << endl;
+	//demonstrating instream, outstream, +, and = overloading of binary, as well as decimal
+	//   conversion.
 	cout << "Enter a binary number: ";
 	cin >> bnum;
 	cout << "...and another: ";
