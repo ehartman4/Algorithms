@@ -5,14 +5,16 @@ using namespace std;
 
 
 class number{
-public:
+protected:
 	string strnum;
 	int base;
 	vector<int> bitnum;
+	vector<int> chop();
+public:
 	number () {vector<int> thebitnum (20,0);};//empty constructor for binary
 	number (int thebase, vector<int> thebitnum) {base = thebase; bitnum = thebitnum;};
-	vector<int> chop();
 	int decimal();
+	vector<int> get_bitnum();
 	friend istream& operator>> (istream&, number&);
 	friend ostream& operator<< (ostream&, number);
 	number operator+ (number);	
@@ -59,6 +61,10 @@ int number::decimal(){
 		column *= base;
 	}
 	return dec;
+}
+
+vector<int> number::get_bitnum(){
+	return bitnum;
 }
 
 istream& operator>> (istream& ci, number& b)
@@ -141,7 +147,7 @@ public:
 
 binary binary::operator+ (binary right){
 	number numsum = number::operator+(right);
-	binary sum (numsum.bitnum);
+	binary sum (numsum.get_bitnum());
 	return sum;
 }
 
@@ -155,7 +161,7 @@ public:
 
 octal octal::operator+ (octal right){
 	number numsum = number::operator+(right);
-	octal sum (numsum.bitnum);
+	octal sum (numsum.get_bitnum());
 	return sum;
 }
 
@@ -168,48 +174,39 @@ public:
 
 hexadecimal hexadecimal::operator+ (hexadecimal right){
 	number numsum = number::operator+(right);
-	hexadecimal sum (numsum.bitnum);
+	hexadecimal sum (numsum.get_bitnum());
 	return sum;
 }
 
 
 int main(){
-	/*
-	vector<int> neb (20,0);
-	//number three (16,neb);
-	//number four (16,neb);
-	hexadecimal three;
-	hexadecimal four;
-	cin>>three;
-	cin>>four;
-	cout<<three<<endl;
-	cout<<three+four<<endl;
-	hexadecimal five = three+four;
-	//hexadecimal six = five;
-	cout<<five<<endl;
-	//cout<<"six"<<six<<endl;
-	cout<<three.decimal()<<endl;
-	return 0;
-	*/
-
+	
+	
 	binary bnum, bnum2, bnum3;
-	hexadecimal hnum;
+	hexadecimal hnum,hnum2,hnum3;
 	octal onum1, onum2;
-	cout << "Enter binary: ";
-	cin >> bnum;
-	cout << "Enter binary2: ";
-	cin >> bnum2;
-	bnum3 = bnum + bnum2;
-	cout << "Sum: " << bnum3 << endl;
-	cout << "Enter hex: ";
+	cout << "Enter a hexadecimal number: ";
 	cin >> hnum;
-	cout << "Hex number is: " << hnum << endl;
-	cout << "Its decimal value is: " << hnum.decimal () << endl;
-	cout << "Enter octal: ";
+	cout << "Enter another hex number: ";
+	cin >> hnum2;
+	cout << "The first number, "<<hnum<<", converted to decimal is: "<<hnum.decimal()<<endl;
+	cout << "The second number, "<<hnum2<<", converted to decimal is: "<<hnum2.decimal()<<endl;
+	hnum3 = hnum+hnum2;
+	cout<< "In hex, their sum is: "<<hnum3<<". In decimal, that's: "<<hnum3.decimal()<<endl;
+	cout << "Enter an octal number: ";
 	cin >> onum1;
 	cout << "Octal number is: " << onum1 << endl;
 	cout << "Its decimal value is: " << onum1.decimal () << endl;
-	onum2 = onum1;
-	cout << "The decimal value of onum2 is: " << onum2.decimal () << endl;
+	cout << "Enter another octal: ";
+	cin >> onum2;
+	cout << "The sum of these two octal numbers is: " << onum1+onum2 << endl;
+	cout << "Enter a binary number: ";
+	cin >> bnum;
+	cout << "...and another: ";
+	cin >> bnum2;
+	bnum3 = bnum+bnum2;
+	cout << "Their sum is: " << bnum3 << endl;
+	bnum = bnum3;
+	cout << "The decimal value of bnum is now: "<< bnum.decimal() << endl;
 	return 0;
 }
