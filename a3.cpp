@@ -4,8 +4,50 @@
 #include <string.h>
 #include <stdlib.h>
 #include <vector>
+#include <math.h>
 
 using namespace std;
+
+class GRD{
+protected:
+	vector<double> values;
+	vector<double> allval;
+	vector<double> sorted;
+	bool NODATA_check;
+	double NODATA_value;
+	string file;
+	string sort_type;
+	double avg;
+	double largeval;
+	double smallval;
+public:
+	GRD::GRD(){NODATA_check = 0;};
+	void getdata();
+	double rmse(GRD);
+	void BubbleSort();
+	void Sort();
+	void avg();
+	void larsmaval();
+
+};
+
+double rmse (vector<double> all1, vector<double> all2){
+	double sum = 0;
+	for (int i = 0; i < all1.size(); ++i)
+	{
+		if ((NODATA_check.all1==1 and all1[i]==NODATA_value.all1) or (NODATA_check.all2==1 and all2[i]==NODATA_value.all1)){
+			sum = sum;
+		}
+		else{
+			sum += (all1[i]-all2[i])**2;
+		}
+		
+	}
+	sum /= all1.size();
+	sum = sqrt(sum);
+	return sum;
+}
+
 
 vector<double> BubbleSort (vector<double> val)
 {
@@ -36,12 +78,19 @@ vector<double> BubbleSort (vector<double> val)
 }
 
 int main(){
+	GRD first();
+	GRD second();
 	ifstream myfile;
-	cout<<"Filename: ";
-	string file;
+	cout<<"First filename: ";
+	//string file;
 	//const char filepoop;
-	cin>>file;
+	cin>>first.file;
 	//file = &filepoop;
+
+	cout<<"Second filename: ";
+	//string file;
+	//const char filepoop;
+	cin>>second.file;
 	string line;
 	size_t pos;
 	myfile.open(file.c_str());
@@ -93,7 +142,7 @@ int main(){
 		NODATA_check = 1;
 		getline(myfile,line,' ');
 	}
-
+/*
 	if (NODATA_check==0)
 	{
 		for (int i = 0;i<nrows;i++){
@@ -101,38 +150,40 @@ int main(){
 			{
 				if (j==0 and line[0]=='\n'){
 					line.erase(0,1);
-				}
-
-				if (atof(line.c_str())!=NODATA_value){
-					values.push_back(atof(line.c_str()));
-					avg += atof(line.c_str());
-				}
+				}	
+				values.push_back(atof(line.c_str()));
+				avg += atof(line.c_str());
 				cout<<i<<"  "<<j<<" "<<line<<endl;
 				getline(myfile,line,' ');
 			}
 			//getline(myfile,line);
 			//cout<<i<<" "<<line<<endl;
 		}
+		allval = values;
 	}
+	*/
 	
-	else{
-		for (int i = 0;i<nrows;i++){
-			for (int j = 0; j < ncols; ++j)
-			{
-				if (j==0 and line[0]=='\n'){
-					line.erase(0,1);
-				}
-
+	for (int i = 0;i<nrows;i++){
+		for (int j = 0; j < ncols; ++j)
+		{
+			if (j==0 and line[0]=='\n'){
+				line.erase(0,1);
+			}
+			allval.push_back(atof(line.c_str()));
+			if NODATA_check==1{
 				if (atof(line.c_str())!=NODATA_value){
 					values.push_back(atof(line.c_str()));
 					avg += atof(line.c_str());
 				}
-				cout<<i<<"  "<<j<<" "<<line<<endl;
-				getline(myfile,line,' ');
 			}
-			//getline(myfile,line);
-			//cout<<i<<" "<<line<<endl;
+			else{
+				values.push_back(atof(line.c_str()));
+			}
+			cout<<i<<"  "<<j<<" "<<line<<endl;
+			getline(myfile,line,' ');
 		}
+		//getline(myfile,line);
+		//cout<<i<<" "<<line<<endl;
 	}
 
 
