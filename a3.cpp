@@ -79,31 +79,63 @@ int main(){
 	}
 	else{int NODATA_value = NULL;}*/
 	//while (myfile.good()){
-	double NODATA_value = NULL;
+	bool NODATA_check = 0;
+	double NODATA_value;
 	double avg = 0;
 	vector<double> values;
-	for (int i = 0;i<nrows;i++){
-		for (int j = 0; j < ncols; ++j)
-		{
-			getline(myfile,line,' ');
-			if (i==0 and j==0 and line=="NODATA_value"){
-				getline(myfile,line,' ');
-				NODATA_value = atof(line.c_str());
-			}
-			else{
+	vector<double> allval;
+
+
+	getline(myfile,line,' ');
+	if (line=="NODATA_value"){
+		getline(myfile,line,'\n');
+		NODATA_value = atof(line.c_str());
+		NODATA_check = 1;
+		getline(myfile,line,' ');
+	}
+
+	if (NODATA_check==0)
+	{
+		for (int i = 0;i<nrows;i++){
+			for (int j = 0; j < ncols; ++j)
+			{
 				if (j==0 and line[0]=='\n'){
-				line.erase(0,1);
+					line.erase(0,1);
 				}
+
 				if (atof(line.c_str())!=NODATA_value){
 					values.push_back(atof(line.c_str()));
 					avg += atof(line.c_str());
 				}
+				cout<<i<<"  "<<j<<" "<<line<<endl;
+				getline(myfile,line,' ');
 			}
-			cout<<i<<"  "<<j<<" "<<line<<endl;
+			//getline(myfile,line);
+			//cout<<i<<" "<<line<<endl;
 		}
-		//getline(myfile,line);
-		//cout<<i<<" "<<line<<endl;
 	}
+	
+	else{
+		for (int i = 0;i<nrows;i++){
+			for (int j = 0; j < ncols; ++j)
+			{
+				if (j==0 and line[0]=='\n'){
+					line.erase(0,1);
+				}
+
+				if (atof(line.c_str())!=NODATA_value){
+					values.push_back(atof(line.c_str()));
+					avg += atof(line.c_str());
+				}
+				cout<<i<<"  "<<j<<" "<<line<<endl;
+				getline(myfile,line,' ');
+			}
+			//getline(myfile,line);
+			//cout<<i<<" "<<line<<endl;
+		}
+	}
+
+
 	myfile.close();
 
 	for (int i = 0; i < values.size(); ++i)
