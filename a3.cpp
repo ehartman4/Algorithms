@@ -15,41 +15,146 @@ protected:
 	vector<double> sorted;
 	bool NODATA_check;
 	double NODATA_value;
-	string file;
-	string sort_type;
+	int size;
+	
+	//string sort_type;
 	double avg;
+	double median;
 	double largeval;
 	double smallval;
+	int ncols;
+	int nrows;
+	bool sortcheck;
 public:
-	GRD::GRD(){NODATA_check = 0;};
+	GRD(){NODATA_check = 0;avg=0;sortcheck=0;};
 	void getdata();
 	double rmse(GRD);
-	void BubbleSort();
-	void Sort();
-	void avg();
+	vector<double> BubbleSort(vector<double>);
+	void sort(string);
+	void mean();
 	void larsmaval();
+	void get_median();
+	string file;
 
 };
 
-double rmse (vector<double> all1, vector<double> all2){
-	double sum = 0;
-	for (int i = 0; i < all1.size(); ++i)
+void GRD::getdata(){
+	ifstream myfile;
+	string line;
+	size_t pos;
+	myfile.open(file.c_str());
+	getline(myfile,line);
+	pos = line.find(' ');
+	string sncols = line.substr(pos+1);
+	pos = sncols.find(' ');
+	if (pos!=string::npos)
 	{
-		if ((NODATA_check.all1==1 and all1[i]==NODATA_value.all1) or (NODATA_check.all2==1 and all2[i]==NODATA_value.all1)){
+		sncols.erase(pos,1);
+	}
+	
+	ncols = atoi(sncols.c_str());
+	cout<<ncols<<endl;
+
+	getline(myfile,line);
+	pos = line.find(' ');
+	string snrows = line.substr(pos+1);
+	pos = snrows.find(' ');
+	if (pos!=string::npos)
+	{
+		snrows.erase(pos,1);
+	}
+	nrows = atoi(snrows.c_str());
+	cout<<nrows<<endl;
+	getline(myfile,line);
+	getline(myfile,line);
+	getline(myfile,line);
+	
+	//while (myfile.good()){
+	
+	getline(myfile,line,' ');
+	if (line=="NODATA_value"){
+		getline(myfile,line,'\n');
+		NODATA_value = atof(line.c_str());
+		NODATA_check = 1;
+		getline(myfile,line,' ');
+	}
+	
+	for (int i = 0;i<nrows;i++){
+		for (int j = 0; j < ncols; ++j)
+		{
+			if (j==0 and line[0]=='\n'){
+				line.erase(0,1);
+			}
+			allval.push_back(atof(line.c_str()));
+			if (NODATA_check==1){
+				if (atof(line.c_str())!=NODATA_value){
+					values.push_back(atof(line.c_str()));
+				}
+			}
+			else{values.push_back(atof(line.c_str()));}
+			cout<<i<<"  "<<j<<" "<<line<<endl;
+			getline(myfile,line,' ');
+		}
+	}
+	myfile.close();
+	size = values.size();
+}
+
+double GRD::rmse (GRD other){
+	double sum = 0;
+	for (int i = 0; i < allval.size(); ++i)
+	{
+		if ((NODATA_check==1 and allval[i]==NODATA_value) or (other.NODATA_check==1 and other.allval[i]==other.NODATA_value)){
 			sum = sum;
 		}
 		else{
-			sum += (all1[i]-all2[i])**2;
+			sum += (allval[i]-other.allval[i])*(allval[i]-other.allval[i]);
 		}
 		
 	}
-	sum /= all1.size();
+	sum /= allval.size();
 	sum = sqrt(sum);
 	return sum;
 }
 
+void GRD::mean (){
+	for (int i = 0; i < values.size(); ++i)
+	{
+		avg += values[i];
+	}
+	avg /= values.size();
+}
 
-vector<double> BubbleSort (vector<double> val)
+void GRD::get_median (){
+	if (sorted.size()%2==0)
+	{
+		median = (sorted[sorted.size()/2]+sorted[(sorted.size()/2)-1])/2;
+	}
+	else {median = sorted[sorted.size()/2];}
+}
+
+void GRD::larsmaval(){
+	largeval = sorted[sorted.size()-1];
+	smallval = sorted[0];
+}
+
+void GRD::sort(string sort_type){
+	sortcheck = 1;
+	if (sort_type=="bubble"){
+		sorted = BubbleSort(values);
+	}
+	else if (sort_type=="STL"){
+		vector<double> temp;
+		temp=values;
+		//////////figure out STL sort!!!
+		//values.sort();
+		sorted = values;
+		values = temp;
+	}
+}
+
+
+vector<double> GRD::BubbleSort (vector<double> val)
 {
    int counter = 0;
    int i;
@@ -78,9 +183,9 @@ vector<double> BubbleSort (vector<double> val)
 }
 
 int main(){
-	GRD first();
-	GRD second();
-	ifstream myfile;
+	GRD first;
+	GRD second;
+	string type;
 	cout<<"First filename: ";
 	//string file;
 	//const char filepoop;
@@ -91,126 +196,21 @@ int main(){
 	//string file;
 	//const char filepoop;
 	cin>>second.file;
-	string line;
-	size_t pos;
-	myfile.open(file.c_str());
-	getline(myfile,line);
-	pos = line.find(' ');
-	string sncols = line.substr(pos+1);
-	pos = sncols.find(' ');
-	if (pos!=string::npos)
-	{
-		sncols.erase(pos,1);
-	}
+	cout<<"Type of Sort: ";
+	cin>>type;
+	first.getdata();
+	second.getdata();
+
+	first.mean();
+	second.mean();
+	first.rmse(second);
+	first.sort(type);
+	second.sort(type);
+	first.larsmaval();
+	second.larsmaval();
+
+	first.get_median();
+	second.get_median();
 	
-	int ncols = atoi(sncols.c_str());
-	cout<<ncols<<endl;
-
-	getline(myfile,line);
-	pos = line.find(' ');
-	string snrows = line.substr(pos+1);
-	pos = snrows.find(' ');
-	if (pos!=string::npos)
-	{
-		snrows.erase(pos,1);
-	}
-	int nrows = atoi(snrows.c_str());
-	cout<<nrows<<endl;
-	getline(myfile,line);
-	getline(myfile,line);
-	getline(myfile,line);
-	//QUESTION FOR TOMORROW: what can you use instead of null for int?
-	/*getline(myfile,line,' ');
-	if (line=="NODATA_value")
-	{
-		getline(myfile,line,' ');
-		int NODATA_value = atoi(line.c_str());
-	}
-	else{int NODATA_value = NULL;}*/
-	//while (myfile.good()){
-	bool NODATA_check = 0;
-	double NODATA_value;
-	double avg = 0;
-	vector<double> values;
-	vector<double> allval;
-
-
-	getline(myfile,line,' ');
-	if (line=="NODATA_value"){
-		getline(myfile,line,'\n');
-		NODATA_value = atof(line.c_str());
-		NODATA_check = 1;
-		getline(myfile,line,' ');
-	}
-/*
-	if (NODATA_check==0)
-	{
-		for (int i = 0;i<nrows;i++){
-			for (int j = 0; j < ncols; ++j)
-			{
-				if (j==0 and line[0]=='\n'){
-					line.erase(0,1);
-				}	
-				values.push_back(atof(line.c_str()));
-				avg += atof(line.c_str());
-				cout<<i<<"  "<<j<<" "<<line<<endl;
-				getline(myfile,line,' ');
-			}
-			//getline(myfile,line);
-			//cout<<i<<" "<<line<<endl;
-		}
-		allval = values;
-	}
-	*/
-	
-	for (int i = 0;i<nrows;i++){
-		for (int j = 0; j < ncols; ++j)
-		{
-			if (j==0 and line[0]=='\n'){
-				line.erase(0,1);
-			}
-			allval.push_back(atof(line.c_str()));
-			if NODATA_check==1{
-				if (atof(line.c_str())!=NODATA_value){
-					values.push_back(atof(line.c_str()));
-					avg += atof(line.c_str());
-				}
-			}
-			else{
-				values.push_back(atof(line.c_str()));
-			}
-			cout<<i<<"  "<<j<<" "<<line<<endl;
-			getline(myfile,line,' ');
-		}
-		//getline(myfile,line);
-		//cout<<i<<" "<<line<<endl;
-	}
-
-
-	myfile.close();
-
-	for (int i = 0; i < values.size(); ++i)
-	{
-		cout<<values[i]<<endl;
-	}
-
-	cout<<"Values: "<<values.size()<<endl;
-	values = BubbleSort(values);
-	for (int i = 0; i < values.size(); ++i)
-	{
-		cout<<values[i]<<endl;
-	}
-	double median;
-	if (values.size()%2==0)
-	{
-		median = (values[values.size()/2]+values[(values.size()/2)-1])/2;
-	}
-	else {median = values[values.size()/2];}
-	avg /= values.size();
-	cout<<"Mean: "<<avg<<endl;
-	cout<<"Median: "<<median<<endl;
-	cout<<"Largest Value: "<<values[values.size()-1]<<endl;
-	cout<<"Smallest Value: "<<values[0]<<endl;
-
 	return 0;
 }
