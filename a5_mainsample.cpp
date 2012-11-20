@@ -5,6 +5,7 @@
 #include <iostream>
 #include <assert.h>
 #include <math.h>
+#include <list>
 
 using namespace std;
 
@@ -39,6 +40,7 @@ public:
 template<class elemType>
 void twoThreeTree<elemType>::display() const{
     nodeType <elemType> *checkNode = root;
+    list< elemType > toPrint;
     int height = 0;
     while (checkNode->left)
     {
@@ -50,13 +52,20 @@ void twoThreeTree<elemType>::display() const{
 
     for (int i = 0; i <= height; ++i)
     {
-        for (int j = 0; j <= i; ++j)
+        for (int j = 0; j < 3*(i+1); ++j)
         {
-            cout<<showNode->dataLeft;
-            if (showNode->numData==2)
+            int count = 0;
+            if (showNode!=NULL)
             {
-                cout<<showNode->dataRight;
+                toPrint.push_back(showNode->dataLeft);
+                cout<<toPrint.back()<<endl;
+                if (showNode->numData==2)
+                {
+                    toPrint.push_back(showNode->dataRight);
+                    cout<<toPrint.back()<<endl;
+                }
             }
+            
             //to determine next show node:
             if (showNode->parent == NULL)
             {
@@ -68,17 +77,57 @@ void twoThreeTree<elemType>::display() const{
                 {
                     showNode = showNode->parent->middle;
                 }
-                else 
+                else
                 {
+                    j++;
                     showNode = showNode->parent->right;
                 }
+                
             }
             else if (showNode == showNode->parent->middle)
             {
                 showNode = showNode->parent->right;
             }
-
+            else if (showNode == showNode->parent->right)
+            {
+                if (showNode->parent->parent != NULL)
+                {
+                    
+                    if (count<3*(i+1)-1)
+                    {
+                        if (showNode->parent == showNode->parent->parent->left)
+                        {
+                            if (showNode->parent->parent->numData==2)
+                            {
+                                showNode = showNode->parent->parent->middle->left;
+                            }
+                            else
+                            {
+                                j++;
+                                showNode = showNode->parent->parent->right->left;
+                            }
+                        }
+                        else if (showNode->parent == showNode->parent->parent->middle)
+                        {
+                            showNode = showNode->parent->parent->right->left;
+                        }
+                        else if (showNode->parent == showNode->parent->parent->right)
+                        {
+                            if (showNode->parent != NULL)
+                            {
+                                showNode = showNode->parent->parent->parent->middle;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    showNode = showNode->parent->left->left;
+                }
+            }
         }
+
+
         cout<<endl;
         /*
         if (root->numData==2)
@@ -91,14 +140,21 @@ void twoThreeTree<elemType>::display() const{
         }
         */
     }
+    elemType a;
+    for (int i = 0; i < toPrint.size(); ++i)
+    {
+        if (toPrint.front())
+        {
+            //a = toPrint.pop_front();
+            //cout<<a<<endl;
+        }
+        
+    }
+    
 }
 
 template<class elemType>
 void twoThreeTree<elemType>::doInorder(nodeType<elemType>* rooter) const{
-    //if (rooter==NULL)
-    //{
-        
-        //cout<<"The tree is empty."<<endl;
     nodeType <elemType> *checkNode = rooter;
     if (checkNode->left)
     {
@@ -125,11 +181,9 @@ void twoThreeTree<elemType>::insert(const elemType a){
     //traverse to appropriate leaf
     //THEN worry about inserting.
     int i = 0;
-    cout<<"hey k"<<endl;
 
     if (root==NULL)
     {
-        cout<<"hello, nonexistent tree!"<<endl;
         root = new nodeType <elemType>;
         root->numData = 1;
         root->dataLeft = a;
@@ -137,39 +191,19 @@ void twoThreeTree<elemType>::insert(const elemType a){
         root->right = NULL;
         root->middle = NULL;
 
-        //i=-1;
     }
-    //cout<<root->dataLeft<<endl;
     else
     {
-        cout<<"hey k2"<<endl;
-
         nodeType <elemType> *checkNode = root;
-        cout<<checkNode->dataLeft<<endl;
-        cout<<checkNode->numData<<endl;
-        cout<<root->numData<<endl;
-
-
         //this loop breaks when it finds where to insert new node
         while (i != -1)
         {
-            //cout<<"hey k3"<<endl;
-            cout<<"check"<<checkNode->dataLeft<<endl;
-            if (checkNode->numData==2)
-            {
-                cout<<"checkright"<<checkNode->dataRight<<endl;
-            }
-
             if (checkNode == NULL){
                 nodeType <elemType> *checkNode = new nodeType <elemType>;
-                cout<<"hello"<<endl;
-                //checkNode->numData = 1;
-                //checkNode->dataLeft = a;
                 break;
             }
             else if (checkNode->numData==1)
             {
-                cout<<"hello2"<<endl;
                 if (checkNode->left == NULL and checkNode->right == NULL)
                     {break;}
                 else if (a < checkNode->dataLeft)
@@ -183,18 +217,16 @@ void twoThreeTree<elemType>::insert(const elemType a){
             }
             else if (checkNode->numData==2)
             {
-                cout<<"hello3"<<endl;
                 if (checkNode->left == NULL and checkNode->middle == NULL and checkNode->right == NULL)
                     {
-                        cout<<"oh yeahhhh"<<endl;
-                        break;}
+                        break;
+                    }
                 else if (a < checkNode->dataLeft)
                 {
                     checkNode = checkNode->left;
                 }
                 else if (a > checkNode->dataLeft and a < checkNode->dataRight)
                 {
-                    cout<<"i see you d"<<endl;
                     checkNode = checkNode->middle;
                 }
                 else if (a > checkNode->dataRight)
@@ -215,12 +247,7 @@ void twoThreeTree<elemType>::insert(const elemType a){
         tempmidNode->left->left = NULL, tempmidNode->left->middle = NULL, tempmidNode->left->right = NULL, tempmidNode->left->numData = 1;
         tempmidNode->right->left = NULL, tempmidNode->right->middle = NULL, tempmidNode->right->right = NULL, tempmidNode->right->numData = 1;
         passNode->left = NULL, passNode->middle = NULL, passNode->right = NULL,passNode->numData = 1;
-        
-
         passNode->dataLeft = a;
-        int temppos = 0;
-
-        cout<<"holla"<<endl;
 
         while (checkNode->numData == 2 and checkNode != root)
         {
@@ -240,8 +267,6 @@ void twoThreeTree<elemType>::insert(const elemType a){
                 tempmidNode->left->right = passNode->right;
                 if (passNode->left and passNode->right)
                 {
-                    /*passNode->left->parent = templeftNode;
-                    passNode->right->parent = templeftNode;*/
                     passNode->left->parent = tempmidNode->left;
                     passNode->right->parent = tempmidNode->left;
                 }
@@ -260,7 +285,6 @@ void twoThreeTree<elemType>::insert(const elemType a){
             else if (passNode->dataLeft > checkNode->dataLeft and passNode->dataLeft < checkNode->dataRight)
             {
                 //middle val/new parent is left val
-                cout<<"whoopayyy2"<<endl;
                 tempmidNode->left->dataLeft = checkNode->dataLeft;
                 tempmidNode->left->left = checkNode->left;
                 tempmidNode->left->right = passNode->left;
@@ -284,14 +308,11 @@ void twoThreeTree<elemType>::insert(const elemType a){
             else if (passNode->dataLeft > checkNode->dataRight)
             {
                 //middle val/new parent is left val
-                cout<<"whoopayyy3"<<endl;
                 tempmidNode->left->dataLeft = checkNode->dataLeft;
                 tempmidNode->left->left = checkNode->left;
                 tempmidNode->left->right = checkNode->middle;
                 if (checkNode->left and checkNode->right)
                 {
-                    cout<<"it happened"<<endl;
-
                     checkNode->left->parent = tempmidNode->left;
                     checkNode->middle->parent = tempmidNode->left;
                 }
@@ -301,46 +322,27 @@ void twoThreeTree<elemType>::insert(const elemType a){
                 tempmidNode->right->right = passNode->right;
                 if (passNode->left and passNode->right)
                 {
-                    cout<<"it also happened"<<endl;
                     passNode->left->parent = tempmidNode->right;
                     passNode->right->parent = tempmidNode->right;
                 }
-                cout<<"hrrrm"<<endl;
             }
             tempmidNode->left->parent = tempmidNode;
             tempmidNode->right->parent = tempmidNode;
             passNode = tempmidNode;
             checkNode = checkNode->parent;
-            cout<<"makes it to here"<<endl;
-            if(checkNode->parent)
-            {
-                cout<<checkNode->parent->dataLeft<<endl;
-                if (checkNode->parent->numData==2)
-                {
-                    cout<<checkNode->parent->dataRight<<endl;
-                }
-            }
+            
         }
-        cout<<"huh?"<<endl;
 
         //old temp and new temp, new temp is parent, then at end have old temp = new temp
         //FOR THIS TO WORK: MUST MAKE MID NODE POINT TO LEFT AND RIGHT, MUST MAKE INITLA A = MIDNODE
         if (checkNode->numData == 1)
         {
-            cout<<"hey there buddy"<<endl;
             if (passNode->dataLeft < checkNode->dataLeft)
             {
-                cout<<passNode->dataLeft<<endl;
-                cout<<"morehellos"<<endl;
                 checkNode->dataRight = checkNode->dataLeft;
                 checkNode->dataLeft = passNode->dataLeft;
                 checkNode->left = passNode->left;
-                checkNode->middle = passNode->right;
-                if (checkNode->middle)
-                {
-                    cout<<"here"<<checkNode->middle->dataLeft<<endl;
-                }
-                
+                checkNode->middle = passNode->right;                
                 if (passNode->left and passNode->right)
                 {
                     passNode->left->parent = checkNode;
@@ -349,37 +351,21 @@ void twoThreeTree<elemType>::insert(const elemType a){
             }
             else
             {
-                cout<<"morehellos3"<<endl;
                 checkNode->dataRight = passNode->dataLeft;
                 checkNode->middle = passNode->left;
                 checkNode->right = passNode->right;
                 if (passNode->left and passNode->right)
                 {
-                    //passNode->left->parent = checkNode;
                     checkNode->middle->parent = checkNode;
-                    cout<<"morehellos7"<<endl;
-                    //passNode->right->parent = checkNode;
                     checkNode->right->parent = checkNode;
-                    cout<<"morehellos4"<<endl;
                 }
-                else{cout<<"how's it going?"<<endl;}
 
             }
             checkNode->numData = 2;
-            if (checkNode != root)
-            {
-                cout<<"checkNode parent "<<checkNode->parent->dataLeft<<endl;
-                if (checkNode->parent->parent==NULL)
-                {
-                    cout<<"huh."<<endl;
-                }
-                cout<<"check root"<<root->dataLeft<<endl;
-            }
         }
 
         else if (checkNode == root)
         {
-            cout<<"badaba"<<endl;
             if (root == NULL)
             {
                 root = passNode;
@@ -387,17 +373,14 @@ void twoThreeTree<elemType>::insert(const elemType a){
             }
             else if (root->numData == 2)
             {
-                cout<<"ohyeahalright "<<passNode->dataLeft<<endl;
                 if (passNode->dataLeft < checkNode->dataLeft)
                 {
-                    cout<<"craycray1"<<endl;
                     //middle val/new parent is left val
                     tempmidNode->left->dataLeft = passNode->dataLeft;
                     tempmidNode->left->left = passNode->left;
                     tempmidNode->left->right = passNode->right;
                     if (passNode->left and passNode->right)
                     {
-                        cout<<"craycray3"<<endl;
                         passNode->left->parent = tempmidNode->left;
                         passNode->right->parent = tempmidNode->left;
                     }
@@ -407,18 +390,14 @@ void twoThreeTree<elemType>::insert(const elemType a){
                     tempmidNode->right->right = checkNode->right;
                     if (checkNode->left and checkNode->right)
                     {
-                        cout<<"craycray4"<<endl;
                         checkNode->middle->parent = tempmidNode->right;
                         checkNode->right->parent = tempmidNode->right;
                     }       
-                    
                 }
                 else if (passNode->dataLeft > checkNode->dataLeft and passNode->dataLeft < checkNode->dataRight)
                 {
-                    cout<<"craycray2"<<tempmidNode->left->dataLeft<<endl;
                     tempmidNode->left->dataLeft = checkNode->dataLeft;
                     tempmidNode->left->left = checkNode->left;
-                    cout<<"checkie this out "<<passNode->left->dataLeft<<endl;
                     tempmidNode->left->right = passNode->left;
                     tempmidNode->dataLeft = passNode->dataLeft;
                     tempmidNode->right->dataLeft = checkNode->dataRight;
@@ -426,14 +405,12 @@ void twoThreeTree<elemType>::insert(const elemType a){
                     tempmidNode->right->right = checkNode->right;
                     if (passNode->left and passNode->right)
                     {
-                        cout<<"craycray5"<<endl;
                         passNode->left->parent = tempmidNode->left;
                         passNode->right->parent = tempmidNode->right;
                     }
                     
                     if (checkNode->left and checkNode->right)
                     {
-                        cout<<"craycray6"<<endl;
                         checkNode->left->parent = tempmidNode->left;
                         checkNode->right->parent = tempmidNode->right;
                     }
@@ -441,13 +418,11 @@ void twoThreeTree<elemType>::insert(const elemType a){
                 else if (passNode->dataLeft > checkNode->dataRight)
                 {
                     //middle val/new parent is left val
-                    cout<<"whoopayyy4"<<endl;
                     tempmidNode->left->dataLeft = checkNode->dataLeft;
                     tempmidNode->left->left = checkNode->left;
                     tempmidNode->left->right = checkNode->middle;
                     if (checkNode->left and checkNode->right)
                     {
-                        cout<<"craycray7"<<endl;
                         checkNode->left->parent = tempmidNode->left;
                         checkNode->middle->parent = tempmidNode->left;
                     }
@@ -456,17 +431,11 @@ void twoThreeTree<elemType>::insert(const elemType a){
                     tempmidNode->right->dataLeft = passNode->dataLeft;
                     tempmidNode->right->left = passNode->left;
                     tempmidNode->right->right = passNode->right;
-                    cout<<"whoopayyy6"<<endl;
                     if (passNode->left and passNode->right)
                     {
-                        cout<<"craycray8"<<endl;
-
                         passNode->left->parent = tempmidNode->right;
                         passNode->right->parent = tempmidNode->right;
                     }
-                    
-                    cout<<"whoopayyy7"<<endl;
-                    
                 }
                 tempmidNode->left->parent = tempmidNode;
                 tempmidNode->right->parent = tempmidNode;
@@ -474,19 +443,6 @@ void twoThreeTree<elemType>::insert(const elemType a){
             }
         }
     }
-    cout<<"ROOT NUMDATA"<<root->numData<<endl;
-
-    if (a == 'i')
-    {
-        cout<<root->dataLeft<<endl;
-        cout<<root->left->dataLeft<<endl;
-        cout<<root->left->left->dataLeft<<endl;
-        cout<<root->left->right->dataLeft<<endl;
-        cout<<root->right->dataLeft<<endl;
-        cout<<root->right->left->dataLeft<<endl;
-        cout<<root->right->right->dataLeft<<endl;
-    }
-
 }
 
 int main () {
