@@ -1,6 +1,7 @@
 //MORNING: segfaultingwhen it gets to the double new line char, after the word "me." lab 11 works fin soooowtf?
 #include <iostream>
 #include <fstream>
+#include <list>
 
 using namespace std;
 
@@ -23,24 +24,26 @@ public:
 //repeat wordcounter
 
 class Bucket {
-	Word* first;
 public:
 	Bucket(){
 		collisions = 0;
 		first = NULL;
-		//maxword->repeatcount = 0;
+		content = 0;
 	}
-	Word* maxword;
+	Word* first;
 	int collisions;
-	void addword(string);
+	int content;
+	int addword(string);
 };
 
-void Bucket::addword(string newword)
+int Bucket::addword(string newword)
 {
+	int maxcounter = 0;
 	if (first==NULL)
 	{
 		first = new Word(newword);
-		maxword = first;
+		maxcounter = first->repeatcount;
+		content++;
 	}
 	else
 	{
@@ -54,10 +57,7 @@ void Bucket::addword(string newword)
 			if (currentword->text == newword)
 			{
 				currentword->repeatcount++;
-				if (currentword->repeatcount > maxword->repeatcount)
-				{
-					maxword = currentword;
-				}
+				maxcounter = currentword->repeatcount;
 				repeat = 1;
 				break;
 			}
@@ -68,8 +68,11 @@ void Bucket::addword(string newword)
 		if (repeat==0)
 		{
 			lastword->next = new Word(newword);
+			maxcounter = lastword->next->repeatcount;
+			content++;
 		}
 	}
+	return maxcounter;
 }
 //word counter
 //pointer to first word/word instance
@@ -79,55 +82,95 @@ class hashTable{
 	int tablesize;
 	float A;
 	Bucket* table;
+	int maxfreq;
+	list<string> maxiest;
 public:
 	hashTable(int thetablesize, float theA){
 		tablesize = thetablesize;
 		A = theA;
 		table = new Bucket[tablesize];
+		maxfreq = 0;
 	}
 	void insert(string);
 	void printhighest();
+	void biggestbucket();
+	void collstats();
 };
 
 void hashTable::insert(string input)
 {
 	int key = 0;
-	//cout<<input<<" ";
 	for (int i = 0; i < input.length(); i++)
 	{
 		key += input[i];
 	}
-	//cout<<key<<" ";
 	int mult = key*A;
 	float mod1 = key*A - mult;
 	int hashvalue = tablesize*mod1;
-	//cout<<hashvalue<<endl;
-	table[hashvalue].addword(input);
+	int possmax = table[hashvalue].addword(input);
+	if (possmax > maxfreq)
+	{
+		maxiest.clear();
+		maxfreq = possmax;
+		maxiest.push_back(input);
+	}
+	else if (possmax == maxfreq)
+	{
+		maxiest.push_back(input);
+	}
 }
 
 void hashTable::printhighest()
 {
-	list<Word> maxiest;
-	//Word *maxiest = new Word;
-	for (int i = 0; i < tablesize; ++i)
+	cout<<"Most frequent words: ";
+	int limit = maxiest.size();
+	for (int i = 0; i < limit; ++i)
 	{
-		if (table[i].maxword->repeatcount > maxiest->repeatcount)
+		cout<<"\""<<maxiest.front()<<"\"";
+		maxiest.pop_front();
+		if (maxiest.size() != 0)
 		{
-			maxiest.pop_back();
-			maxiest.push_back(table[i].maxword);
-			//maxiest = table[i].maxword;
+			cout<<", ";
 		}
 	}
+	cout<<" Frequency: "<<maxfreq<<endl;
+}
+
+void hashTable::biggestbucket()
+{
+	Bucket bigbucket;
+	int val = 0;
 	for (int i = 0; i < tablesize; ++i)
 	{
-		if (table[i].maxword->repeatcount == maxiest.front()->repeatcount)
+		if (table[i].content > bigbucket.content)
 		{
-			maxiest.pop_back();
-			maxiest.push_back(table[i].maxword);
-			//maxiest = table[i].maxword;
+			bigbucket = table[i];
+			val = i;
 		}
 	}
-	cout<<"Most frequent word: "<<maxiest->text<<" Frequency: "<<maxiest->repeatcount<<endl;
+	Word* current = bigbucket.first;
+	cout<<"Most-Used Bucket: "<<val<<" Content: ";
+	for (int i = 0; i < bigbucket.content; ++i)
+	{
+		cout<<"\""<<current->text<<"\"";
+		if (i != bigbucket.content - 1)
+		{
+			cout<<", ";
+		}
+		current = current->next;
+	}
+	cout<<endl;
+}
+
+void hashTable::collstats()
+{
+	int totcoll = 0;
+	for (int i = 0; i < tablesize; ++i)
+	{
+		totcoll += table[i].collisions;
+	}
+	cout<<"Total Collisons: "<<totcoll<<endl;
+	cout<<"Average Collisions per Bucket: "<<(double) totcoll/tablesize<<endl;
 }
 
 int main(){
@@ -162,5 +205,7 @@ int main(){
 		//cout<<s<<c;
 	}
 	myTable.printhighest();
+	myTable.biggestbucket();
+	myTable.collstats();
 	return 0;
 }
